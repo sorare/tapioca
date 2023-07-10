@@ -71,6 +71,14 @@ module Tapioca
         def argument_type(argument)
           return "T.untyped" unless argument
 
+          if argument.prepare
+            if constant.method_defined?(argument.prepare.to_s)
+              sig = Runtime::Reflection.signature_of(constant.instance_method(argument.prepare))
+              return sig.return_type.to_s if sig
+            end
+            return "T.untyped"
+          end
+
           argument_type = if argument.loads
             non_null = GraphQL::Schema::NonNull === argument.type
             if argument.type.list?

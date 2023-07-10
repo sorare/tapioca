@@ -118,6 +118,9 @@ module Tapioca
 
                 class CustomScalar < GraphQL::Schema::Scalar; end
 
+                class PreparedAttribute
+                end
+
                 class CreateComment < GraphQL::Schema::Mutation
                   argument :boolean, Boolean, required: true
                   argument :float, Float, required: true
@@ -135,8 +138,18 @@ module Tapioca
                   argument :optional_loaded_argument_id, ID, required: false, loads: LoadedType
                   argument :loaded_argument_ids, [ID], required: true, loads: LoadedType
                   argument :optional_loaded_argument_ids, [ID], required: false, loads: LoadedType
+                  argument :prepared_attribute, String, required: true, prepare: :prepare_attribute
+                  argument :prepared_attribute_no_sig, String, required: true, prepare: :doesnt_exist
+                  argument :prepare_attribute_blk, String, required: true, prepare: lambda { |x, ctx| PreparedAttribute.new }
 
-                  def resolve(boolean:, float:, id:, int:, date:, datetime:, json:, string:, enum_a:, enum_b:, input_object:, custom_scalar:, loaded_argument:, loaded_arguments:, optional_loaded_argument: nil, optional_loaded_arguments: nil)
+                  extend T::Sig
+
+                  sig { params(user_key: String).returns(PreparedAttribute) }
+                  def prepare_attribute(user_key)
+                    PreparedAttribute.new
+                  end
+
+                  def resolve(boolean:, float:, id:, int:, date:, datetime:, json:, string:, enum_a:, enum_b:, input_object:, custom_scalar:, loaded_argument:, loaded_arguments:, prepared_attribute:, prepared_attribute_no_sig:, prepare_attribute_blk:, optional_loaded_argument: nil, optional_loaded_arguments: nil)
                     # ...
                   end
                 end
@@ -146,8 +159,8 @@ module Tapioca
                 # typed: strong
 
                 class CreateComment
-                  sig { params(boolean: T::Boolean, float: ::Float, id: ::String, int: ::Integer, date: ::Date, datetime: ::Time, json: T::Hash[::String, T.untyped], string: ::String, enum_a: ::String, enum_b: T.any(::String, ::Symbol), input_object: ::CreateCommentInput, custom_scalar: T.untyped, loaded_argument: T.untyped, loaded_arguments: T::Array[T.untyped], optional_loaded_argument: T.untyped, optional_loaded_arguments: T.nilable(T::Array[T.untyped])).returns(T.untyped) }
-                  def resolve(boolean:, float:, id:, int:, date:, datetime:, json:, string:, enum_a:, enum_b:, input_object:, custom_scalar:, loaded_argument:, loaded_arguments:, optional_loaded_argument: T.unsafe(nil), optional_loaded_arguments: T.unsafe(nil)); end
+                  sig { params(boolean: T::Boolean, float: ::Float, id: ::String, int: ::Integer, date: ::Date, datetime: ::Time, json: T::Hash[::String, T.untyped], string: ::String, enum_a: ::String, enum_b: T.any(::String, ::Symbol), input_object: ::CreateCommentInput, custom_scalar: T.untyped, loaded_argument: T.untyped, loaded_arguments: T::Array[T.untyped], prepared_attribute: ::PreparedAttribute, prepared_attribute_no_sig: T.untyped, prepare_attribute_blk: T.untyped, optional_loaded_argument: T.untyped, optional_loaded_arguments: T.nilable(T::Array[T.untyped])).returns(T.untyped) }
+                  def resolve(boolean:, float:, id:, int:, date:, datetime:, json:, string:, enum_a:, enum_b:, input_object:, custom_scalar:, loaded_argument:, loaded_arguments:, prepared_attribute:, prepared_attribute_no_sig:, prepare_attribute_blk:, optional_loaded_argument: T.unsafe(nil), optional_loaded_arguments: T.unsafe(nil)); end
                 end
               RBI
 
