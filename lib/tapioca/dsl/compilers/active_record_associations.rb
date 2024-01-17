@@ -279,16 +279,19 @@ module Tapioca
           ).void
         end
         def validate_reflection!(reflection)
+          polymorphic = reflection.polymorphic?
           # Check existence of source reflection, first, since, calling
           # `.klass` also tries to go through the source reflection
           # and fails with a cryptic error, otherwise.
           if reflection.through_reflection?
             raise SourceReflectionError unless reflection.source_reflection
+
+            polymorphic = reflection.source_reflection.polymorphic?
           end
 
           # For non-polymorphic reflections, `.klass` should not be raising
           # a `NameError`.
-          unless reflection.polymorphic?
+          unless polymorphic
             reflection.klass
           end
         rescue NameError
